@@ -9,10 +9,11 @@ config.section_('JobType')
 config.JobType.outputFiles = ['calib.root']
 config.JobType.pyCfgParams = ['noprint']
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '/home/sanders/PbPb_2015/HiEvtPlaneFlatten/CalibTree/calibtree_cfg.py'
+config.JobType.psetName = '/home/sanders/CMSSW_7_5_8_patch6/src/PbPb_pixeltracks/HiEvtPlaneFlatten/CalibTree/calibtree_cfg.py'
 config.JobType.maxJobRuntimeMin = 1315
 config.section_('Data')
-config.Data.inputDataset = '/HIMinimumBias2/HIRun2015-PromptReco-v1/AOD'
+config.Data.allowNonValidInputDataset = True
+config.Data.inputDataset = '/HIMinimumBias2/HIRun2015-25Aug2016-v1/AOD'
 config.Data.runRange = '262548-263757'
 config.Data.unitsPerJob = 20
 config.Data.publication = False
@@ -44,48 +45,48 @@ if __name__ == '__main__':
     #############################################################################################
 submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias3'
-config.Data.inputDataset = '/HIMinimumBias3/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias3'
-submit(config)
-
-config.General.requestName = 'PbPb2015_HIMinimumBias4'
-config.Data.inputDataset = '/HIMinimumBias4/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias4'
+#config.General.requestName = 'PbPb2015_HIMinimumBias3'
+#config.Data.inputDataset = '/HIMinimumBias3/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias3'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias5'
-config.Data.inputDataset = '/HIMinimumBias5/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias5'
+#config.General.requestName = 'PbPb2015_HIMinimumBias4'
+#config.Data.inputDataset = '/HIMinimumBias4/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias4'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias6'
-config.Data.inputDataset = '/HIMinimumBias6/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias6'
+#config.General.requestName = 'PbPb2015_HIMinimumBias5'
+#config.Data.inputDataset = '/HIMinimumBias5/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias5'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias7'
-config.Data.inputDataset = '/HIMinimumBias7/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias7'
+#config.General.requestName = 'PbPb2015_HIMinimumBias6'
+#config.Data.inputDataset = '/HIMinimumBias6/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias6'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias8'
-config.Data.inputDataset = '/HIMinimumBias8/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias8'
+#config.General.requestName = 'PbPb2015_HIMinimumBias7'
+#config.Data.inputDataset = '/HIMinimumBias7/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias7'
+##submit(config)
+
+#config.General.requestName = 'PbPb2015_HIMinimumBias8'
+#config.Data.inputDataset = '/HIMinimumBias8/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias8'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias9'
-config.Data.inputDataset = '/HIMinimumBias9/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias9'
+#config.General.requestName = 'PbPb2015_HIMinimumBias9'
+#config.Data.inputDataset = '/HIMinimumBias9/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias9'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias10'
-config.Data.inputDataset = '/HIMinimumBias10/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias10'
+#config.General.requestName = 'PbPb2015_HIMinimumBias10'
+#config.Data.inputDataset = '/HIMinimumBias10/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias10'
 #submit(config)
 
-config.General.requestName = 'PbPb2015_HIMinimumBias11'
-config.Data.inputDataset = '/HIMinimumBias11/HIRun2015-PromptReco-v1/AOD'
-config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias11'
+#config.General.requestName = 'PbPb2015_HIMinimumBias11'
+#config.Data.inputDataset = '/HIMinimumBias11/HIRun2015-PromptReco-v1/AOD'
+#config.Data.outLFNDirBase = '/store/user/ssanders/PbPb2015_HIMinimumBias11'
 #submit(config)
 

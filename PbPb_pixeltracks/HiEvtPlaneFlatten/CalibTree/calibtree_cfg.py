@@ -27,9 +27,28 @@ goodLumiSecs = LumiList.LumiList(filename = 'Cert_262548-263757_PromptReco_HICol
 
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
+process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),
+                             inputCommands=cms.untracked.vstring(
+        'keep *',
+        'drop *_hiEvtPlane_*_*'
+        )
+)
 
-process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring())
 
+#process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/D6E868DA-7473-E611-B054-003048F30FD8.root'
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/3E6F7414-7873-E611-A778-90B11C44432D.root',
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/E096AAB4-8273-E611-9B34-003048F4FE02.root',
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/1A12E2A3-8373-E611-9402-F01FAFD69122.root',
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/741A50F5-8E73-E611-B7EF-003048F316D8.root',
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/B8DFAA75-9173-E611-9511-F01FAFE15E27.root',
+#       'root://se4.accre.vanderbilt.edu:1094//store/hidata/HIRun2015/HIMinimumBias2/AOD/25Aug2016-v1/00000/5E9B6CF1-9273-E611-8049-003048F310DC.root'
+#       ),
+#                             inputCommands=cms.untracked.vstring(
+#        'keep *',
+#        'drop *_hiEvtPlane_*_*'
+#        )
+#                             )
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("calib.root")
@@ -46,6 +65,7 @@ process.minBias.HLTPaths = [
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.hiEvtPlane.loadDB = cms.bool(False)
+process.hiEvtPlane.trackTag = cms.InputTag("hiGeneralAndPixelTracks")
 process.p = cms.Path(process.minBias*process.hfCoincFilter3*process.primaryVertexFilter*process.centralityBin* process.hiEvtPlane * process.evtPlaneCalibTree)
 
 
