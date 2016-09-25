@@ -68,7 +68,7 @@ Implementation:
 
 using namespace std;
 using namespace hi;
-
+using namespace reco;
 //
 // class decleration
 //
@@ -177,7 +177,7 @@ private:
 
   edm::InputTag vertexTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken;
-  edm::Handle<std::vector<reco::Vertex>> vertex_;
+  edm::Handle<VertexCollection> vertexCollection_;
 
   edm::InputTag caloTag_;
   edm::EDGetTokenT<CaloTowerCollection> caloToken;
@@ -244,7 +244,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
   centralityBinToken = consumes<int>(centralityBinTag_);
 
-  vertexToken = consumes<std::vector<reco::Vertex>>(vertexTag_);
+  vertexToken = consumes<VertexCollection>(vertexTag_);
 
   caloToken = consumes<CaloTowerCollection>(caloTag_);
 
@@ -334,21 +334,28 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //
   //Get Vertex
   //
-  int vs_sell = 0.;
   float vzr_sell;
-  iEvent.getByToken(vertexToken,vertex_);
-  const reco::VertexCollection * vertices3 = nullptr;
-  if ( vertex_.isValid() ) {
-	vertices3 = vertex_.product();
-	vs_sell = vertices3->size();
-  }
-  if(vs_sell>0) {
-    vzr_sell = vertices3->begin()->z();
-  } else
-    vzr_sell = -999.9;
-  //
-  for(int i = 0; i<NumEPNames; i++) rp[i]->reset();
+
+  iEvent.getByToken(vertexToken, vertexCollection_);
+  VertexCollection recoVertices = *vertexCollection_;
+  if ( recoVertices.size() > 100 ) return;
+  sort(recoVertices.begin(), recoVertices.end(), [](const reco::Vertex &a, const reco::Vertex &b){
+      if ( a.tracksSize() == b.tracksSize() ) return a.chi2() < b.chi2();
+      return a.tracksSize() > b.tracksSize();
+    });
+
+  int primaryvtx = 0;
+   
+  double vz = recoVertices[primaryvtx].z();
+  vzr_sell = vz;
   if(vzr_sell<minvtx_ or vzr_sell>maxvtx_) return;
+  
+  math::XYZPoint v1( recoVertices[primaryvtx].position().x(), recoVertices[primaryvtx].position().y(), recoVertices[primaryvtx].position().z() );
+  double vxError = recoVertices[primaryvtx].xError();
+  double vyError = recoVertices[primaryvtx].yError();
+  double vzError = recoVertices[primaryvtx].zError();
+  
+  for(int i = 0; i<NumEPNames; i++) rp[i]->reset();
 
     //calorimetry part
 
@@ -418,78 +425,75 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     //Tracking part
-
+    
     double track_eta;
     double track_phi;
     double track_pt;
-
-    double vzErr2 =0.0, vxyErr=0.0;
-    math::XYZPoint vtxPoint(0.0,0.0,0.0);
-    if(vertex_.isValid() && vertex_->size()>0) {
-	    vtxPoint=vertex_->begin()->position();
-	    vzErr2= (vertex_->begin()->zError())*(vertex_->begin()->zError());
-	    vxyErr=vertex_->begin()->xError() * vertex_->begin()->yError();
-    }
-
-    iEvent.getByToken(trackToken, trackCollection_);
-    if(trackCollection_.isValid()){
-      for(reco::TrackCollection::const_iterator j = trackCollection_->begin(); j != trackCollection_->end(); j++){
-	bool accepted = true;
-	bool isPixel = false;
-	// determine if the track is a pixel track
-	if ( j->numberOfValidHits() < 7 ) isPixel = true;
-
-	// determine the vertex significance 
-	double d0=0.0, dz=0.0, d0sigma=0.0, dzsigma=0.0;
-	d0 = -1.*j->dxy(vtxPoint);
-	dz = j->dz(vtxPoint);
-	d0sigma = sqrt(j->d0Error()*j->d0Error()+vxyErr);
-	dzsigma = sqrt(j->dzError()*j->dzError()+vzErr2);
-
-	// cuts for pixel tracks
-	if( isPixel ){
-	  // dz significance cut 
-	  if ( fabs(dz/dzsigma) > dzerr_ ) accepted = false;
-	  // chi2/ndof cut 
-	  if ( j->normalizedChi2() > chi2_ ) accepted = false;
+    
+    iEvent.getByToken(trackToken,trackCollection_);
+    for(TrackCollection::const_iterator itTrack = trackCollection_->begin();
+	itTrack != trackCollection_->end();
+	++itTrack) {
+      if ( itTrack->charge() == 0 ) continue;
+      if ( !itTrack->quality(reco::TrackBase::highPurity) ) continue;
+      if ( fabs(itTrack->eta()) > 2.4 ) continue;
+      bool bPix = false;
+      int nHits = itTrack->numberOfValidHits();
+      if ( itTrack->pt() < 2.4 and (nHits==3 or nHits==4 or nHits==5 or nHits==6) ) bPix = true;
+      if ( not bPix ) {
+	if ( nHits < 11 ) continue;
+	if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) {
+	  continue;
 	}
-	// cuts for full tracks
-	if ( ! isPixel) {
-	  // dz and d0 significance cuts 
-	  if ( fabs(dz/dzsigma) > 3 ) accepted = false;
-	  if ( fabs(d0/d0sigma) > 3 ) accepted = false;
-	  // pt resolution cut
-	  if ( j->ptError()/j->pt() > 0.1 ) accepted = false;
-	  // number of valid hits cut
-	  if ( j->numberOfValidHits() < 12 ) accepted = false;
+	if ( itTrack->ptError()/itTrack->pt() > 0.1 ) {
+	  continue;
 	}
-	if( accepted ) {
-	  track_eta = j->eta();
-	  track_phi = j->phi();
-	  track_pt = j->pt();
-	  double minpt = minpt_;
-	  double maxpt = maxpt_;
-	  for(int i = 0; i<NumEPNames; i++) {
-	    if(minpt_<0) minpt = minTransverse[i];
-	    if(maxpt_<0) maxpt = maxTransverse[i];
-	    if(track_pt<minpt) continue;
-	    if(track_pt>maxpt) continue;
-	    if(EPDet[i]==Tracker) {
-	      double w = track_pt;
-	      if(w>2.5) w=2.0;   //v2 starts decreasing above ~2.5 GeV/c
-	      if(EPOrder[i]==1) {
-		if(MomConsWeight[i][0]=='y' && loadDB_) {
-		  w = flat[i]->getW(track_pt, vzr_sell, bin);
-		}
-		if(track_eta<0) w=-w;
-	      }
-	      rp[i]->addParticle(w,track_pt,sin(EPOrder[i]*track_phi),cos(EPOrder[i]*track_phi),track_eta);
+	if (
+	    itTrack->pt() > 2.4 and
+	    itTrack->originalAlgo() != 4 and
+	    itTrack->originalAlgo() != 5 and
+	    itTrack->originalAlgo() != 6 and
+	    itTrack->originalAlgo() != 7
+	    ) {
+	  continue;
+	}
+	
+	double d0 = -1.* itTrack->dxy(v1);
+	double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
+	if ( fabs( d0/derror ) > 3.0 ) {
+	  continue;
+	}
+	
+	double dz=itTrack->dz(v1);
+	double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
+	if ( fabs( dz/dzerror ) > 3.0 ) {
+	  continue;
+	}
+      }
+      track_eta = itTrack->eta();
+      track_phi = itTrack->phi();
+      track_pt = itTrack->pt();
+      double minpt = minpt_;
+      double maxpt = maxpt_;
+      for(int i = 0; i<NumEPNames; i++) {
+	if(minpt_<0) minpt = minTransverse[i];
+	if(maxpt_<0) maxpt = maxTransverse[i];
+	if(track_pt<minpt) continue;
+	if(track_pt>maxpt) continue;
+	if(EPDet[i]==Tracker) {
+	  double w = track_pt;
+	  if(w>2.5) w=2.0;   //v2 starts decreasing above ~2.5 GeV/c
+	  if(EPOrder[i]==1) {
+	    if(MomConsWeight[i][0]=='y' && loadDB_) {
+	      w = flat[i]->getW(track_pt, vzr_sell, bin);
 	    }
+	    if(track_eta<0) w=-w;
 	  }
+	  rp[i]->addParticle(w,track_pt,sin(EPOrder[i]*track_phi),cos(EPOrder[i]*track_phi),track_eta);
 	}
-      } //end for
+      }
     }
-
+    
     std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
 
     double ang=-10;
