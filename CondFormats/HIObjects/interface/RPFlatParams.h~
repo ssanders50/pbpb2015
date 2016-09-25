@@ -1,0 +1,28 @@
+#ifndef __RPFlatParams_h__
+#define __RPFlatParams_h__
+
+#include "CondFormats/Serialization/interface/Serializable.h"
+
+#include <vector>
+class RPFlatParams{
+ public:
+  struct EP {
+    float x[100];
+    float y[100];
+    float xSub1[100];
+    float ySub1[100];
+    float xSub2[100];
+    float ySub2[100];
+    int RPNameIndx[100];
+  
+  COND_SERIALIZABLE;
+};
+  RPFlatParams(){}
+  virtual ~RPFlatParams(){}
+  std::vector<EP> m_table;
+
+ COND_SERIALIZABLE;
+};
+
+#endif
+
