@@ -58,7 +58,7 @@
 
 using namespace std;
 using namespace hi;
-
+using namespace reco;
 static const int nptbins = 28;
 static const int MaxNumFlatBins = 200;
 
@@ -93,7 +93,7 @@ private:
   
   edm::InputTag vertexTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken;
-  edm::Handle<std::vector<reco::Vertex>> vertex_;
+  edm::Handle<VertexCollection> vertexCollection_;
   
   edm::InputTag caloTag_;
   edm::EDGetTokenT<CaloTowerCollection> caloToken;
@@ -354,18 +354,22 @@ EvtPlaneCalibTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //
   //Get Vertex
   //
-  int vs_sell;
-  float vzr_sell;
-  iEvent.getByLabel(vertexTag_,vertex_);
-  const reco::VertexCollection * vertices3 = vertex_.product();
-  vs_sell = vertices3->size();
-  if(vs_sell>0) {
-    vzr_sell = vertices3->begin()->z();
-  } else
-    vzr_sell = -999.9;
-  //
-  vtx = vzr_sell;
-  if(vzr_sell>minvtx_ && vzr_sell<maxvtx_) {    
+
+
+  iEvent.getByToken(vertexToken, vertexCollection_);
+  VertexCollection recoVertices = *vertexCollection_;
+  if ( recoVertices.size() > 100 ) return;
+  sort(recoVertices.begin(), recoVertices.end(), [](const reco::Vertex &a, const reco::Vertex &b){
+      if ( a.tracksSize() == b.tracksSize() ) return a.chi2() < b.chi2();
+      return a.tracksSize() > b.tracksSize();
+    });
+
+  int primaryvtx = 0;
+   
+  double vz = recoVertices[primaryvtx].z();
+  vtx = vz;
+
+  if(vtx>minvtx_ && vtx<maxvtx_) {    
     //
     //Get Event Planes
     //

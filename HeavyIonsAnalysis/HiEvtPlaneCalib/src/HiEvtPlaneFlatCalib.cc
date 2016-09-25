@@ -392,6 +392,7 @@ HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig):runno
     if(EPOrder[i]==4 ) psirange = 1;
     if(EPOrder[i]==5) psirange = 0.8;
     if(EPOrder[i]==6) psirange = 0.6;
+    if(EPOrder[i]==7) psirange = 0.5;
     //std::cout<<EPNames[i].data()<<"\t"<<EPOrder[i]<<"\t"<<psirange<<endl;
     hPsi[i] = subdir.make<TH1D>("psi","psi",800,-psirange,psirange);
     hPsi[i]->SetXTitle("#Psi");

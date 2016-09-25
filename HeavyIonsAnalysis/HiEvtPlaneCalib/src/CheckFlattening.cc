@@ -276,6 +276,7 @@ CheckFlattening::CheckFlattening(const edm::ParameterSet& iConfig):runno_(0)
     if(EPOrder[i]==4 ) psirange = 1;
     if(EPOrder[i]==5) psirange = 0.8;
     if(EPOrder[i]==6) psirange = 0.6;
+    if(EPOrder[i]==7) psirange = 0.5;
 
     PsiRaw[i] = subdir.make<TH1D>(Form("PsiRaw_%s",EPNames[i].data()),Form("PsiRaw_%s",EPNames[i].data()),800,-psirange,psirange);
     Psi[i] = subdir.make<TH1D>(Form("Psi_%s",EPNames[i].data()),Form("Psi_%s",EPNames[i].data()),800,-psirange,psirange);
