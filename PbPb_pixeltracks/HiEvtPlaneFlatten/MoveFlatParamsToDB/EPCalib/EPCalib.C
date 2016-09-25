@@ -217,6 +217,7 @@ void EPCalib(unsigned int minRun=0, unsigned int maxRun=500000){
     if(EPOrder[i]==4 ) psirange = 1;
     if(EPOrder[i]==5) psirange = 0.8;
     if(EPOrder[i]==6) psirange = 0.6;
+    if(EPOrder[i]==7) psirange = 0.5;
     for(int j = 0; j<10; j++) {
       hpt[i][j] = new TH1D(Form("pt_%d",j),Form("pt_%d",j),500,0,5);
       hpt[i][j]->SetXTitle("pt (GeV");
